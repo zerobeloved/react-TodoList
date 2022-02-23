@@ -1,14 +1,28 @@
 import Header from "./components/Header";
 import Tasks from "./components/Tasks";
 import AddTask from "./components/AddTask";
-import { useState} from "react";
+import { useState, useEffect} from "react";
 
 
 const App = () => {
     const [showAddTask, setShowAddTask] = useState(false)
-    const [tasks, setTasks] = useState([
-        
-    ])
+    const [tasks, setTasks] = useState([])
+
+    useEffect(() => {
+        const getTasks = async () => {
+            const tasksFromServer = await fetchTasks()
+            setTasks(tasksFromServer)
+        }
+        getTasks()
+    }, [])
+
+    //Fetch tasks
+    const fetchTasks = async () => {
+        const res = await fetch('http://localhost:5000/tasks')
+        const data = await res.json()
+
+        return data
+    }
 
     //Add Task
     const addTask = (task) => {
@@ -17,8 +31,11 @@ const App = () => {
         setTasks([...tasks, newTask])
     }
     //Delete Task
-    const   deleteTask = (id) => {
-        setTasks(tasks.filter((task) =>task.id != id))
+    const   deleteTask = async (id) => {
+        await fetch(`http://localhost:5000/tasks/${id}`,{
+            method:'DELETE',
+        })
+        setTasks(tasks.filter((task) =>task.id !== id))
     }
 
     //Toggle reminder
